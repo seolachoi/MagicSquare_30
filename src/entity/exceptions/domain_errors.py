@@ -1,8 +1,21 @@
-"""Domain-level errors."""
+"""Domain-level exception definitions."""
 
 
-class UnsolvableDomainError(Exception):
-    """No placement satisfies the magic square invariant."""
+class DomainError(Exception):
+    """Base exception for domain rule violations."""
 
-    def __init__(self, message: str = "No valid magic square placement.") -> None:
-        super().__init__(message)
+
+class InvalidUserError(DomainError):
+    """Raised when User entity invariants are violated."""
+
+
+class UnsolvableDomainError(DomainError):
+    """Raised when neither Step A nor Step B yields a valid magic square."""
+
+
+class InvalidGridStateError(DomainError):
+    """Raised when grid state violates domain preconditions."""
+
+
+class InvalidNumberSetError(DomainError):
+    """Raised when present or missing number sets are invalid."""

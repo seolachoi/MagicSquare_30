@@ -1,21 +1,32 @@
-"""Find missing numbers from 1..16 in a partial grid."""
+"""Finds missing numbers from a partial magic square grid."""
 
-from typing import List, Set
+from __future__ import annotations
 
-from entity.value_objects.constants import MAX_VALUE, MIN_VALUE
+from entity.value_objects.magic_constant import CellValueRange
+from entity.value_objects.missing_number_pair import MissingNumberPair
 
 
 class MissingNumberFinder:
-    """Return the two missing values in ascending order."""
+    """Determines which two values from {1..16} are absent (I7, I11)."""
 
-    def find(self, grid: List[List[int]]) -> List[int]:
-        """List missing integers from MIN_VALUE..MAX_VALUE (excluding 0 cells)."""
-        present: Set[int] = set()
-        for row in grid:
-            for value in row:
-                if value != 0:
-                    present.add(value)
-        missing = [n for n in range(MIN_VALUE, MAX_VALUE + 1) if n not in present]
-        if len(missing) != 2:
-            raise ValueError(f"Expected 2 missing numbers, found {len(missing)}")
-        return sorted(missing)
+    def find(self, grid: list[list[int]]) -> MissingNumberPair:
+        """Return the two missing non-zero values in ascending order.
+
+        Args:
+            grid: 4×4 grid; ``0`` marks empty cells and is not a missing value.
+
+        Returns:
+            MissingNumberPair with ``smaller`` and ``larger`` missing integers.
+        """
+        present = {
+            cell
+            for row in grid
+            for cell in row
+            if cell != 0
+        }
+        missing = [
+            value
+            for value in range(CellValueRange.MIN, CellValueRange.MAX + 1)
+            if value not in present
+        ]
+        return MissingNumberPair(smaller=missing[0], larger=missing[1])

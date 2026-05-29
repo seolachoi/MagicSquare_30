@@ -1,42 +1,83 @@
-"""Validate 4x4 partial magic square input."""
+"""Boundary input validation for MagicSquare grid contract."""
 
-from typing import List, Optional
+from __future__ import annotations
 
 from boundary.schemas import ErrorDetail, FailureResponse
-from entity.value_objects.constants import GRID_SIZE, MAX_VALUE, MIN_VALUE
+
+_GRID_SIZE = 4
+_EXPECTED_EMPTY_CELL_COUNT = 2
+_INVALID_SIZE_CODE = "INVALID_SIZE"
+_INVALID_SIZE_MESSAGE = "Grid must be 4x4."
+_E002_CODE = "E002"
+_E002_MESSAGE = "INVALID_EMPTY_COUNT: expected exactly 2 empty cells (0)"
+_E004_CODE = "E004"
+_E004_MESSAGE = "INVALID_CELL_VALUE: each cell must be 0 or 1..16"
+_E005_CODE = "E005"
+_E005_MESSAGE = "DUPLICATE_VALUE: non-zero values must be unique"
+_MIN_CELL_VALUE = 1
+_MAX_CELL_VALUE = 16
 
 
 class InputValidator:
-    """Short-circuit validation: null → size → blanks → range → duplicate."""
+    """Validates incoming grid input against Boundary contract (E001~E005)."""
 
-    def validate(self, grid: Optional[List[List[int]]]) -> FailureResponse | None:
-        """
-        Return FailureResponse if invalid, else None.
+    def validate(self, grid: list[list[int]] | None) -> FailureResponse:
+        """Validate grid shape and cell values at the Boundary layer.
 
-        Order: E003 → E001 → E002 → E004 → E005
+        Args:
+            grid: 4×4 integer matrix, or None when input is absent.
+
+        Returns:
+            FailureResponse when validation fails.
+
+        Raises:
+            NotImplementedError: When validation rules beyond null-check are
+                not yet implemented.
         """
         if grid is None:
-            return self._fail("E003", "Grid must not be null.")
-        if not self._is_4x4(grid):
-            return self._fail("E001", "Grid must be 4x4.")
-        blank_count = sum(1 for row in grid for v in row if v == 0)
-        if blank_count != 2:
-            return self._fail("E002", "Grid must contain exactly 2 blank cells (0).")
+            return FailureResponse(
+                type="ERROR",
+                error=ErrorDetail(
+                    code=_INVALID_SIZE_CODE,
+                    message=_INVALID_SIZE_MESSAGE,
+                ),
+            )
+        if len(grid) != _GRID_SIZE or any(len(row) != _GRID_SIZE for row in grid):
+            return FailureResponse(
+                type="ERROR",
+                error=ErrorDetail(
+                    code=_INVALID_SIZE_CODE,
+                    message=_INVALID_SIZE_MESSAGE,
+                ),
+            )
+        empty_cell_count = sum(cell == 0 for row in grid for cell in row)
+        if empty_cell_count != _EXPECTED_EMPTY_CELL_COUNT:
+            return FailureResponse(
+                type="ERROR",
+                error=ErrorDetail(
+                    code=_E002_CODE,
+                    message=_E002_MESSAGE,
+                ),
+            )
         for row in grid:
-            for value in row:
-                if value != 0 and (value < MIN_VALUE or value > MAX_VALUE):
-                    return self._fail("E004", f"Value {value} out of range 1..16.")
-        non_zero = [v for row in grid for v in row if v != 0]
-        if len(non_zero) != len(set(non_zero)):
-            return self._fail("E005", "Duplicate non-zero values are not allowed.")
-        return None
-
-    @staticmethod
-    def _is_4x4(grid: List[List[int]]) -> bool:
-        if len(grid) != GRID_SIZE:
-            return False
-        return all(isinstance(row, list) and len(row) == GRID_SIZE for row in grid)
-
-    @staticmethod
-    def _fail(code: str, message: str) -> FailureResponse:
-        return FailureResponse(error=ErrorDetail(code=code, message=message))
+            for cell in row:
+                if cell != 0 and (
+                    cell < _MIN_CELL_VALUE or cell > _MAX_CELL_VALUE
+                ):
+                    return FailureResponse(
+                        type="ERROR",
+                        error=ErrorDetail(
+                            code=_E004_CODE,
+                            message=_E004_MESSAGE,
+                        ),
+                    )
+        non_zero_values = [cell for row in grid for cell in row if cell != 0]
+        if len(non_zero_values) != len(set(non_zero_values)):
+            return FailureResponse(
+                type="ERROR",
+                error=ErrorDetail(
+                    code=_E005_CODE,
+                    message=_E005_MESSAGE,
+                ),
+            )
+        raise NotImplementedError

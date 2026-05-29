@@ -1,25 +1,29 @@
-"""Locate blank cells (value 0) in row-major order."""
+"""Locates empty cells in a partial magic square grid."""
 
-from typing import List, Tuple
+from __future__ import annotations
 
-from entity.value_objects.constants import GRID_SIZE
+from entity.value_objects.cell_coordinate import CellCoordinate
+from entity.value_objects.empty_cell_pair import EmptyCellPair
+from entity.value_objects.magic_constant import GridSize
 
 
 class EmptyCellLocator:
-    """Find coordinates of cells equal to 0."""
+    """Finds the two empty cells in row-major order (I6)."""
 
-    def locate(self, grid: List[List[int]]) -> List[Tuple[int, int]]:
-        """
-        Return blank cell coordinates as (row, col) 0-index, row-major.
+    def locate(self, grid: list[list[int]]) -> EmptyCellPair:
+        """Return the first and second empty cell coordinates in scan order.
 
-        Raises:
-            ValueError: If blank count is not exactly two.
+        Args:
+            grid: 4×4 grid with exactly two ``0`` cells (caller precondition).
+
+        Returns:
+            EmptyCellPair with 1-index ``first`` and ``second`` coordinates.
         """
-        blanks: List[Tuple[int, int]] = []
-        for row in range(GRID_SIZE):
-            for col in range(GRID_SIZE):
-                if grid[row][col] == 0:
-                    blanks.append((row, col))
-        if len(blanks) != 2:
-            raise ValueError(f"Expected 2 blanks, found {len(blanks)}")
-        return blanks
+        empty_cells: list[CellCoordinate] = []
+        for row_index in range(GridSize.VALUE):
+            for col_index in range(GridSize.VALUE):
+                if grid[row_index][col_index] == 0:
+                    empty_cells.append(
+                        CellCoordinate(row=row_index + 1, col=col_index + 1)
+                    )
+        return EmptyCellPair(first=empty_cells[0], second=empty_cells[1])

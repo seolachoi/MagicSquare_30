@@ -1,1 +1,1 @@
-"""Control layer."""
+"""Control layer — use-case orchestration for MagicSquare."""

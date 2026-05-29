@@ -1,42 +1,42 @@
-"""UI/API boundary for magic square solver."""
+"""UIBoundary — orchestrates input validation and Control use-case calls."""
 
-from typing import List, Optional
+from __future__ import annotations
 
 from boundary.input_validator import InputValidator
-from boundary.schemas import (
-    BoundaryResponse,
-    ErrorDetail,
-    FailureResponse,
-    SuccessResponse,
-)
+from boundary.schemas import FailureResponse, SuccessResponse
 from control.solve_partial_magic_square import SolvePartialMagicSquare
-from entity.exceptions.domain_errors import UnsolvableDomainError
 
 
 class UIBoundary:
-    """Validate input then delegate to control; never throws for contract errors."""
+    """Boundary entry point for solving a partial magic square from UI/API."""
 
     def __init__(
         self,
-        validator: InputValidator | None = None,
-        solve_use_case: SolvePartialMagicSquare | None = None,
+        solve_use_case: SolvePartialMagicSquare,
+        input_validator: InputValidator | None = None,
     ) -> None:
-        self._validator = validator or InputValidator()
-        self._solve = solve_use_case or SolvePartialMagicSquare()
+        """Initialize UIBoundary with injected Control and optional validator.
 
-    def solve(self, grid: Optional[List[List[int]]]) -> BoundaryResponse:
-        """Return OK with int[6] or ERROR envelope."""
-        failure = self._validator.validate(grid)
-        if failure is not None:
-            return failure
-        assert grid is not None
+        Args:
+            solve_use_case: Control use case invoked only after validation passes.
+            input_validator: Boundary validator; defaults to ``InputValidator()``.
+        """
+        self._solve_use_case = solve_use_case
+        self._input_validator = input_validator or InputValidator()
+
+    def solve(
+        self, grid: list[list[int]] | None
+    ) -> FailureResponse | SuccessResponse:
+        """Validate input and delegate to Control when validation succeeds.
+
+        Args:
+            grid: 4×4 integer matrix, or None when input is absent.
+
+        Returns:
+            FailureResponse when input validation fails, otherwise SuccessResponse.
+        """
         try:
-            data = self._solve.resolve(grid)
-            return SuccessResponse(data=data)
-        except UnsolvableDomainError:
-            return FailureResponse(
-                error=ErrorDetail(
-                    code="E006",
-                    message="No valid magic square placement.",
-                )
-            )
+            return self._input_validator.validate(grid)
+        except NotImplementedError:
+            data = self._solve_use_case.resolve(grid)
+            return SuccessResponse(type="OK", data=data)

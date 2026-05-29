@@ -1,50 +1,49 @@
-"""Validate complete 4x4 magic square."""
+"""Validates complete 4×4 magic square invariants (I1~I5)."""
 
-from typing import List
+from __future__ import annotations
 
-from entity.value_objects.constants import GRID_SIZE, MAGIC_CONSTANT, MAX_VALUE, MIN_VALUE
+from entity.value_objects.magic_constant import CellValueRange, GridSize, MagicConstant
 
 
 class MagicSquareValidator:
-    """Check row, column, and diagonal sums against MAGIC_CONSTANT."""
+    """Checks whether a fully filled grid satisfies magic square rules."""
 
-    def is_valid_complete(self, grid: List[List[int]]) -> bool:
-        """Return True iff grid is 4x4, full (no 0), unique 1..16, all sums match."""
-        if len(grid) != GRID_SIZE or any(len(row) != GRID_SIZE for row in grid):
+    def is_valid_complete(self, grid: list[list[int]]) -> bool:
+        """Return True when the grid satisfies I1~I5 for a complete magic square.
+
+        Args:
+            grid: 4×4 grid with no empty cells.
+
+        Returns:
+            True if all row, column, diagonal sums equal ``MagicConstant`` and
+            values are exactly ``{1..16}`` each once; otherwise False.
+        """
+        if any(cell == 0 for row in grid for cell in row):
             return False
-        seen: set[int] = set()
-        for row in grid:
-            for value in row:
-                if value == 0 or value < MIN_VALUE or value > MAX_VALUE:
-                    return False
-                if value in seen:
-                    return False
-                seen.add(value)
-        if len(seen) != MAX_VALUE:
-            return False
-        return (
-            self._all_line_sums_equal(grid)
-            and self._diag_sum(grid, 0, 0, 1, 1) == MAGIC_CONSTANT
-            and self._diag_sum(grid, 0, GRID_SIZE - 1, 1, -1) == MAGIC_CONSTANT
+
+        expected_values = set(
+            range(CellValueRange.MIN, CellValueRange.MAX + 1)
         )
-
-    def _all_line_sums_equal(self, grid: List[List[int]]) -> bool:
-        row_sums = [sum(row) for row in grid]
-        if not all(s == MAGIC_CONSTANT for s in row_sums):
+        if {cell for row in grid for cell in row} != expected_values:
             return False
-        for col in range(GRID_SIZE):
-            if sum(grid[row][col] for row in range(GRID_SIZE)) != MAGIC_CONSTANT:
-                return False
-        return True
 
-    @staticmethod
-    def _diag_sum(
-        grid: List[List[int]], start_row: int, start_col: int, dr: int, dc: int
-    ) -> int:
-        total = 0
-        row, col = start_row, start_col
-        for _ in range(GRID_SIZE):
-            total += grid[row][col]
-            row += dr
-            col += dc
-        return total
+        target = MagicConstant.VALUE
+        for row in grid:
+            if sum(row) != target:
+                return False
+
+        for col_index in range(GridSize.VALUE):
+            if sum(grid[row_index][col_index] for row_index in range(GridSize.VALUE)) != target:
+                return False
+
+        main_diagonal = sum(
+            grid[index][index] for index in range(GridSize.VALUE)
+        )
+        if main_diagonal != target:
+            return False
+
+        anti_diagonal = sum(
+            grid[index][GridSize.VALUE - 1 - index]
+            for index in range(GridSize.VALUE)
+        )
+        return anti_diagonal == target
