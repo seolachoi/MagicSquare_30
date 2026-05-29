@@ -6,12 +6,9 @@ AC-FR01-04~06. Full assert는 Full RED 단계에서 추가.
 
 from __future__ import annotations
 
-import pytest
-
 from boundary.input_validator import InputValidator
 
-# Report/02 G0 — 완전 격자 (0 없음), U-IN-04 Given
-# grid_g0 = [[16,3,2,13],[5,10,11,8],[9,6,7,12],[4,15,14,1]]
+from tests.conftest import GRID_G0
 
 
 class TestEmptyCountValidation:
@@ -19,15 +16,8 @@ class TestEmptyCountValidation:
 
     def test_u_in_04_zero_empty_cells_returns_e002(self) -> None:
         """U-IN-04, AC-FR01-04 — G0 완전 격자, count(0)==0 → E002."""
-        # U-IN-04
-        # Given
         validator = InputValidator()
-        matrix = [[16, 3, 2, 13], [5, 10, 11, 8], [9, 6, 7, 12], [4, 15, 14, 1]]
-
-        # When
-        result = validator.validate(matrix)
-
-        # Then
+        result = validator.validate(GRID_G0)
         assert result.type == "ERROR"
         assert result.error.code == "E002"
         assert (
@@ -37,15 +27,9 @@ class TestEmptyCountValidation:
 
     def test_u_in_05_three_empty_cells_returns_e002(self) -> None:
         """U-IN-05, AC-FR01-04 — 4×4, 0 세 개 → E002."""
-        # U-IN-05
-        # Given
         validator = InputValidator()
         matrix = [[0, 3, 2, 13], [5, 0, 11, 8], [9, 6, 0, 12], [4, 15, 14, 1]]
-
-        # When
         result = validator.validate(matrix)
-
-        # Then
         assert result.type == "ERROR"
         assert result.error.code == "E002"
         assert (
@@ -59,25 +43,21 @@ class TestValueRangeValidation:
 
     def test_u_in_06_cell_minus_one_returns_e004(self) -> None:
         """U-IN-06, AC-FR01-05 — 셀 -1, 0 두 개 → E004."""
-        # U-IN-06
-        # Given
-        # validator = InputValidator()
-        # matrix = [[16,3,2,13],[-1,0,11,8],[9,6,0,12],[4,15,14,1]]
-        # When
-        # result = validator.validate(matrix)
-        # Then — E004, message exact, Domain 0회
-        pytest.fail("RED: U-IN-06 — 셀 -1 → E004")
+        validator = InputValidator()
+        matrix = [[16, 3, 2, 13], [-1, 0, 11, 8], [9, 6, 0, 12], [4, 15, 14, 1]]
+        result = validator.validate(matrix)
+        assert result.type == "ERROR"
+        assert result.error.code == "E004"
+        assert result.error.message == "INVALID_CELL_VALUE: each cell must be 0 or 1..16"
 
     def test_u_in_07_cell_seventeen_returns_e004(self) -> None:
         """U-IN-07, AC-FR01-05 — 셀 17, 0 두 개 → E004."""
-        # U-IN-07
-        # Given
-        # validator = InputValidator()
-        # matrix = [[16,3,2,13],[5,0,11,8],[9,6,0,12],[4,15,14,17]]
-        # When
-        # result = validator.validate(matrix)
-        # Then — E004, message exact, Domain 0회
-        pytest.fail("RED: U-IN-07 — 셀 17 → E004")
+        validator = InputValidator()
+        matrix = [[16, 3, 2, 13], [5, 0, 11, 8], [9, 6, 0, 12], [4, 15, 14, 17]]
+        result = validator.validate(matrix)
+        assert result.type == "ERROR"
+        assert result.error.code == "E004"
+        assert result.error.message == "INVALID_CELL_VALUE: each cell must be 0 or 1..16"
 
 
 class TestDuplicateValidation:
@@ -85,11 +65,9 @@ class TestDuplicateValidation:
 
     def test_u_in_08_duplicate_non_zero_returns_e005(self) -> None:
         """U-IN-08, AC-FR01-06 — 5 중복, 0 두 개 → E005."""
-        # U-IN-08
-        # Given
-        # validator = InputValidator()
-        # matrix = [[16,3,2,13],[5,0,11,8],[9,6,0,12],[4,15,14,5]]
-        # When
-        # result = validator.validate(matrix)
-        # Then — E005, message exact, Domain 0회
-        pytest.fail("RED: U-IN-08 — non-zero 5 중복 → E005")
+        validator = InputValidator()
+        matrix = [[16, 3, 2, 13], [5, 0, 11, 8], [9, 6, 0, 12], [4, 15, 14, 5]]
+        result = validator.validate(matrix)
+        assert result.type == "ERROR"
+        assert result.error.code == "E005"
+        assert result.error.message == "DUPLICATE_VALUE: non-zero values must be unique"

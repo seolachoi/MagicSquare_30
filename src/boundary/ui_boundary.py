@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 from boundary.input_validator import InputValidator
-from boundary.schemas import FailureResponse, SuccessResponse
+from boundary.schemas import ErrorDetail, FailureResponse, SuccessResponse
 from control.solve_partial_magic_square import SolvePartialMagicSquare
+from entity.exceptions.domain_errors import UnsolvableDomainError
+
+_E006_CODE = "E006"
+_E006_MESSAGE = "UNSOLVABLE: no valid magic square completion"
 
 
 class UIBoundary:
@@ -38,5 +42,11 @@ class UIBoundary:
         try:
             return self._input_validator.validate(grid)
         except NotImplementedError:
-            data = self._solve_use_case.resolve(grid)
+            try:
+                data = self._solve_use_case.resolve(grid)
+            except UnsolvableDomainError:
+                return FailureResponse(
+                    type="ERROR",
+                    error=ErrorDetail(code=_E006_CODE, message=_E006_MESSAGE),
+                )
             return SuccessResponse(type="OK", data=data)

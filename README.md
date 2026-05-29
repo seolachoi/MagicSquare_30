@@ -307,14 +307,14 @@ Report/01 (문제 정의)
 
 | 항목 | 상태 |
 |------|------|
-| **현재 단계** | Dual-Track RED 스켈레톤 + 부분 GREEN (Report/05~17) |
+| **현재 단계** | Phase 0-B/C GREEN 완료 — E006 매핑, RED→GREEN, Control SSOT |
 | **Report / Prompting** | ✅ Report 01~17, Prompting 01~17 |
-| **구현 코드** | ✅ ECB + Domain 서비스 + PyQt Screen (부분 GREEN) |
-| **테스트 코드** | ✅ RED 스켈레톤 50+건 + Golden Master GM-1 |
+| **구현 코드** | ✅ ECB + Domain + PyQt Screen + UIBoundary E006 |
+| **테스트 코드** | ✅ Dual-Track GREEN + Golden Master GM-1 + SC-CTL-001~004 |
 | **User Entity (ECB 워밍업)** | ✅ Report/03 |
 | **PRD** | ✅ `docs/PRD_MagicSquare.md` v0.2 |
 | **Cursor Agents / Rules** | ✅ `.cursor/agents/`, `.cursor/rules/*.mdc` |
-| **다음 단계** | Phase 0-B: U-OUT-03 E006 매핑, 남은 RED → GREEN |
+| **다음 단계** | Wave 1 REFACTOR (RF-01~04), Screen 테스트, 커버리지 95%+ |
 
 ### 권장 RED 착수 순서
 

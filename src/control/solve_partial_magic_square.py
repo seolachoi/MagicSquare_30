@@ -39,14 +39,4 @@ class SolvePartialMagicSquare:
         Raises:
             UnsolvableDomainError: When the domain solver finds no completion.
         """
-        empty_cells = self._empty_cell_locator.locate(grid)
-        missing_numbers = self._missing_number_finder.find(grid)
-        self._two_cell_solver.solve(grid)
-        return [
-            empty_cells.first.row,
-            empty_cells.first.col,
-            missing_numbers.smaller,
-            empty_cells.second.row,
-            empty_cells.second.col,
-            missing_numbers.larger,
-        ]
+        return self._two_cell_solver.solve(grid).values
