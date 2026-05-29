@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from boundary.input_validator import InputValidator
 from boundary.schemas import ErrorDetail, FailureResponse
+from boundary.validation_result import ValidationResult
 
 from tests.boundary.ac_fr_01_01_constants import (
     AC_FR_01_01,
@@ -120,7 +121,9 @@ class TestFailureResponseStructure:
         result = validator.validate(grid_none)
 
         # Then
-        assert isinstance(result, FailureResponse)
+        assert isinstance(result, ValidationResult)
+        assert result.is_error
+        assert isinstance(result.failure, FailureResponse)
         assert isinstance(result.error, ErrorDetail)
         assert issubclass(FailureResponse, BaseModel)
         assert result.model_dump() == {

@@ -307,14 +307,14 @@ Report/01 (문제 정의)
 
 | 항목 | 상태 |
 |------|------|
-| **현재 단계** | Phase 0-B/C GREEN 완료 — E006 매핑, RED→GREEN, Control SSOT |
+| **현재 단계** | Wave 1 REFACTOR 완료 — ValidationResult, ErrorMapper, Screen tests |
 | **Report / Prompting** | ✅ Report 01~17, Prompting 01~17 |
-| **구현 코드** | ✅ ECB + Domain + PyQt Screen + UIBoundary E006 |
-| **테스트 코드** | ✅ Dual-Track GREEN + Golden Master GM-1 + SC-CTL-001~004 |
+| **구현 코드** | ✅ ECB + RF-01~04 (ValidationResult, ErrorMapper, Control SSOT) |
+| **테스트 코드** | ✅ 60+ tests GREEN (Screen + GM-1 + Dual-Track) |
 | **User Entity (ECB 워밍업)** | ✅ Report/03 |
 | **PRD** | ✅ `docs/PRD_MagicSquare.md` v0.2 |
 | **Cursor Agents / Rules** | ✅ `.cursor/agents/`, `.cursor/rules/*.mdc` |
-| **다음 단계** | Wave 1 REFACTOR (RF-01~04), Screen 테스트, 커버리지 95%+ |
+| **다음 단계** | Wave 2 (Screen presenter, SSOT 상수), 커버리지 95%+ |
 
 ### 권장 RED 착수 순서
 

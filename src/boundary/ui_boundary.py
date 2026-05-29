@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
+from boundary.error_mapper import ErrorMapper
 from boundary.input_validator import InputValidator
-from boundary.schemas import ErrorDetail, FailureResponse, SuccessResponse
+from boundary.schemas import FailureResponse, SuccessResponse
 from control.solve_partial_magic_square import SolvePartialMagicSquare
-from entity.exceptions.domain_errors import UnsolvableDomainError
-
-_E006_CODE = "E006"
-_E006_MESSAGE = "UNSOLVABLE: no valid magic square completion"
 
 
 class UIBoundary:
@@ -18,15 +15,18 @@ class UIBoundary:
         self,
         solve_use_case: SolvePartialMagicSquare,
         input_validator: InputValidator | None = None,
+        error_mapper: ErrorMapper | None = None,
     ) -> None:
         """Initialize UIBoundary with injected Control and optional validator.
 
         Args:
             solve_use_case: Control use case invoked only after validation passes.
             input_validator: Boundary validator; defaults to ``InputValidator()``.
+            error_mapper: Domain → Boundary error translator; defaults to new instance.
         """
         self._solve_use_case = solve_use_case
         self._input_validator = input_validator or InputValidator()
+        self._error_mapper = error_mapper or ErrorMapper()
 
     def solve(
         self, grid: list[list[int]] | None
@@ -39,14 +39,13 @@ class UIBoundary:
         Returns:
             FailureResponse when input validation fails, otherwise SuccessResponse.
         """
+        validation = self._input_validator.validate(grid)
+        if validation.is_error:
+            assert validation.failure is not None
+            return validation.failure
+
         try:
-            return self._input_validator.validate(grid)
-        except NotImplementedError:
-            try:
-                data = self._solve_use_case.resolve(grid)
-            except UnsolvableDomainError:
-                return FailureResponse(
-                    type="ERROR",
-                    error=ErrorDetail(code=_E006_CODE, message=_E006_MESSAGE),
-                )
-            return SuccessResponse(type="OK", data=data)
+            data = self._solve_use_case.resolve(grid)  # type: ignore[arg-type]
+        except Exception as exc:
+            return self._error_mapper.map_domain_error(exc)
+        return SuccessResponse(type="OK", data=data)

@@ -2,33 +2,22 @@
 
 from __future__ import annotations
 
-from entity.services.empty_cell_locator import EmptyCellLocator
-from entity.services.missing_number_finder import MissingNumberFinder
 from entity.services.two_cell_solver import TwoCellSolver
 
 
 class SolvePartialMagicSquare:
-    """Orchestrates locate → find → solve for a validated 4×4 grid."""
+    """Orchestrates two-cell solve for a validated 4×4 grid."""
 
-    def __init__(
-        self,
-        empty_cell_locator: EmptyCellLocator | None = None,
-        missing_number_finder: MissingNumberFinder | None = None,
-        two_cell_solver: TwoCellSolver | None = None,
-    ) -> None:
-        """Initialize use case with injectable domain services.
+    def __init__(self, two_cell_solver: TwoCellSolver | None = None) -> None:
+        """Initialize use case with injectable domain solver.
 
         Args:
-            empty_cell_locator: Locates empty cells in row-major order.
-            missing_number_finder: Finds the two missing values from {1..16}.
             two_cell_solver: Attempts Step A/B completion and validation.
         """
-        self._empty_cell_locator = empty_cell_locator or EmptyCellLocator()
-        self._missing_number_finder = missing_number_finder or MissingNumberFinder()
         self._two_cell_solver = two_cell_solver or TwoCellSolver()
 
     def resolve(self, grid: list[list[int]]) -> list[int]:
-        """Run locate → find → solve and return ``int[6]`` for a valid grid.
+        """Run domain solve and return ``int[6]`` for a valid grid.
 
         Args:
             grid: Validated 4×4 integer matrix with exactly two empty cells.
