@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "magic-square"
+version = "0.1.0"
+description = "4x4 partial magic square solver — Dual-Track TDD practice"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov>=4.0"]
+gui = ["PyQt6>=6.4"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+  "golden_master: golden master regression tests",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

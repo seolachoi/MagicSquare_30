@@ -1,0 +1,46 @@
+# =============================================================================
+# MagicSquare 4x4 — Cursor Rules
+# =============================================================================
+
+project:
+  name: MagicSquare_sa
+  python_version: "3.10+"
+  description: "Dual-Track UI + Logic TDD practice — partial 4x4 magic square"
+
+code_style:
+  style_guide: PEP8
+  type_hints: required
+  docstring: Google style for public APIs
+  max_line_length: 88
+
+architecture:
+  pattern: ECB
+  layers:
+    boundary: "Input validation, envelopes, UI — no domain algorithms"
+    control: "Use-case orchestration — locate/find/solve flow"
+    entity: "Pure domain services and constants"
+  dependency_direction: "boundary -> control -> entity"
+
+tdd_rules:
+  red_phase: "Write failing tests first; no production code until RED confirmed"
+  green_phase: "Minimal code to pass; no refactor in GREEN commit"
+  refactor_phase: "Preserve contracts; pytest + golden_master must pass"
+
+testing:
+  framework: pytest
+  pattern: AAA
+  coverage_minimum: "80%"
+  naming: "test_ prefix required"
+
+forbidden:
+  - pattern: "print("
+    reason: "Use logging or tests"
+  - pattern: "bare except"
+    reason: "Catch specific exceptions"
+  - pattern: "weakening tests"
+    reason: "No skip/xfail to force pass"
+
+ai_behavior:
+  - "Declare Phase/Layer before code changes"
+  - "RED without tests touching src/ forbidden"
+  - "Use MAGIC_CONSTANT and GRID_SIZE from entity.value_objects.constants"
